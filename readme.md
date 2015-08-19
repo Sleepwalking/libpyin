@@ -16,7 +16,7 @@ mkdir build
 make
 ```
 
-Cited works
+Works cited
 ---
 
 * Mauch, Matthias, and Sam Dixon. "pYIN: A fundamental frequency estimator using probabilistic threshold distributions." Acoustics, Speech and Signal Processing (ICASSP), 2014 IEEE International Conference on. IEEE, 2014.
