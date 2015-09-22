@@ -138,9 +138,9 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
   
   // fill in the blank
   int frame_offset = ceil(nf / nhop);
-  for(int i = 0; i < *nfrm; i ++)
+  for(int i = 1; i < *nfrm; i ++)
     if(pint[i] < smtdesc.nq && pint[i - 1] >= smtdesc.nq) // from unvoiced to voiced
-      for(int j = 1; j <= frame_offset; j ++)
+      for(int j = 1; j <= frame_offset && i - j >= 0; j ++)
         ret[i - j] = ret[i];
   
   free(betapdf);
