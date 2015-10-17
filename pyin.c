@@ -70,7 +70,7 @@ pyin_paramters pyin_init(int nhop) {
   ret.w = 300;
   ret.beta_a = 1.7;
   ret.beta_u = 0.2;
-  ret.emph = 0.5;
+  ret.bias = 1.0;
   ret.trange = 12;
   ret.ptrans = 0.003;
   ret.nf = 1024;
@@ -116,7 +116,7 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
       for(int k = floor(v1 * 100); k < floor(v0 * 100); k ++)
         p += betapdf[k];
       p = p > 0.99 ? 0.99 : p;
-      p = (sqrt(1 - (1 - p) * (1 - p)) - p) * param.emph + p;
+      p *= param.bias;
       
       obsrv -> slice[i] -> pair[j].state = bin;
       obsrv -> slice[i] -> pair[j].p = p;

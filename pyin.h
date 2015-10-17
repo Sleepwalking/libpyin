@@ -45,7 +45,7 @@ typedef struct {
   int w;            // correlation length
   FP_TYPE beta_a;   // alpha param. for prior distribution of threshold
   FP_TYPE beta_u;   // mean param. for prior distribution of threshold
-  FP_TYPE emph;     // emphasis level for candidates
+  FP_TYPE bias;     // voicing bias: > 1: towards voiced, < 1: towards unvoiced
   FP_TYPE ptrans;   // voicing/unvoicing transition probability
   int trange;       // maximum allowed transition distance
   int nf;           // size of analysis frame
