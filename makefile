@@ -1,5 +1,5 @@
-CC = gcc
-AR = ar
+CC = $(CROSS)gcc
+AR = $(CROSS)ar
 CFLAGS = -Ofast -std=c99 -Wall -fPIC
 ARFLAGS = -rv
 OUT_DIR = ./build

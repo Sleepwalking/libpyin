@@ -118,6 +118,9 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
       p = p > 0.99 ? 0.99 : p;
       p *= param.bias;
       
+      if(freq > param.fmax || freq < param.fmin)
+        p = EPS;
+      
       obsrv -> slice[i] -> pair[j].state = bin;
       obsrv -> slice[i] -> pair[j].p = p;
     }
