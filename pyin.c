@@ -37,10 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FP_TYPE* pyin_yincorr(FP_TYPE* x, int nx, int w);
 
-static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step, int* nv) {
+static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step, int begin, int* nv) {
   int* ret = calloc(nx, sizeof(int));
   *nv = 0;
-  for(int i = 1; i < nx - 1; i ++)
+  for(int i = begin; i < nx - 1; i ++)
     if(x[i - 1] > x[i] && x[i + 1] > x[i] && x[i] < threshold) {
       threshold = x[i] - step;
       ret[(*nv) ++] = i;
@@ -102,7 +102,7 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
     
     int nv = 0;
     FP_TYPE* d = pyin_yincorr(xfrm, nf, yin_w);
-    int* vi = find_valleys(d, nd, 1, 0.01, & nv);
+    int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, & nv);
 
     obsrv -> slice[i] = gvps_obsrv_slice_create(nv);
     for(int j = 0; j < nv; j ++) {
