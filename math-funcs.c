@@ -41,6 +41,8 @@ FP_TYPE* pyin_normalized_betapdf(FP_TYPE a, FP_TYPE b, FP_TYPE from, FP_TYPE to,
     FP_TYPE x = from + gallop * i;
     ret[i] = pow(x, a - 1) * pow(1 - x, b - 1);
   }
+  for(int i = number - 2; i > 0; i --) // enforce monotonicity
+    if(ret[i] < ret[i + 1]) ret[i] = ret[i + 1];
   FP_TYPE norm_factor = 1.0 / sumfp(ret, number);
   for(int i = 0; i < number; i ++)
     ret[i] *= norm_factor;
@@ -66,7 +68,7 @@ pyin_semitone_wrapper pyin_wrapper_from_frange(FP_TYPE fmin, FP_TYPE fmax) {
   return ret;
 }
 
-int      pyin_semitone_from_freq(pyin_semitone_wrapper wrapper, FP_TYPE freq) {
+int pyin_semitone_from_freq(pyin_semitone_wrapper wrapper, FP_TYPE freq) {
   FP_TYPE semitone_fp = log2(freq / wrapper.fconst) * wrapper.nq / wrapper.a + wrapper.b * wrapper.nq;
   return floor(semitone_fp);
 }
