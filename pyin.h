@@ -53,6 +53,7 @@ typedef struct {
 } pyin_paramters;
 
 pyin_paramters pyin_init(int nhop);
+int pyin_trange(int nq, double fmin, double fmax);
 FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int* nfrm);
 
 #endif

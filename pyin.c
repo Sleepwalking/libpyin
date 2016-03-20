@@ -78,6 +78,11 @@ pyin_paramters pyin_init(int nhop) {
   return ret;
 }
 
+int pyin_trange(int nq, double fmin, double fmax) {
+  pyin_semitone_wrapper smtdesc = pyin_wrapper_from_frange(fmin, fmax);
+  return nq / smtdesc.a * 0.25; // +- 0.25 octave
+}
+
 FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int* nfrm) {
   int nf = param.nf;
   int yin_w = param.w;

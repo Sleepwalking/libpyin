@@ -50,9 +50,9 @@ int main(int argc, char** argv) {
   pyin_paramters param = pyin_init(ceil(fs * 0.005));
   param.fmin = 50.0;
   param.fmax = 800.0;
-  param.trange = 24;
+  param.trange = pyin_trange(param.nq, param.fmin, param.fmax);
   param.nf = ceil(fs * 0.025);
-  param.w = param.nf / 4;
+  param.w = param.nf / 3;
   
   int nfrm = 0;
   double* f0 = pyin_analyze(param, x, nx, fs, & nfrm);
