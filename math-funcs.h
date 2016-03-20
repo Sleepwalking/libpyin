@@ -52,9 +52,9 @@ pyin_semitone_wrapper pyin_wrapper_from_frange(FP_TYPE fmin, FP_TYPE fmax);
 int      pyin_semitone_from_freq(pyin_semitone_wrapper wrapper, FP_TYPE freq);
 FP_TYPE  pyin_freq_from_semitone(pyin_semitone_wrapper wrapper, int semitone);
 
-#define def_singlepass(name, op) \
-inline FP_TYPE name(FP_TYPE* src, int n) { \
-  FP_TYPE ret = 0; \
+#define def_singlepass(name, op, init) \
+inline double name(double* src, int n) { \
+  double ret = init; \
   for(int i = 0; i < n; i ++) \
     ret = op(ret, src[i]); \
   return ret; \
@@ -64,9 +64,9 @@ inline FP_TYPE name(FP_TYPE* src, int n) { \
 #define def_max(a, b) ((a) > (b) ? (a) : (b))
 #define def_min(a, b) ((a) < (b) ? (a) : (b))
 
-def_singlepass(sumfp, def_add)
-def_singlepass(maxfp, def_max)
-def_singlepass(minfp, def_min)
+def_singlepass(sumfp, def_add, 0)
+def_singlepass(maxfp, def_max, src[0])
+def_singlepass(minfp, def_min, src[0])
 
 inline FP_TYPE* hanning(int n) {
   FP_TYPE* ret = calloc(n, sizeof(FP_TYPE));
