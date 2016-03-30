@@ -109,6 +109,20 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
     FP_TYPE* d = pyin_yincorr(xfrm, nf, yin_w);
     int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, & nv);
 
+    int vmini = 0;
+    double vmin = 1;
+    for(int j = 0; j < nv; j ++)
+      if(d[vi[j]] < vmin) {
+        vmin = d[vi[j]];
+        vmini = vi[j];
+      }
+
+    // if YIN gives very definitive result
+    if(nv > 0 && vmin < 0.02) {
+      nv = 1;
+      vi[0] = vmini;
+    }
+
     obsrv -> slice[i] = gvps_obsrv_slice_create(nv);
     for(int j = 0; j < nv; j ++) {
       int period = vi[j];
