@@ -102,19 +102,21 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
   for(int i = 0; i < *nfrm; i ++) {
     FP_TYPE* xfrm = fetch_frame(x, nx, i * nhop, nf);
     FP_TYPE xmean = sumfp(xfrm, nf) / nf;
+    
     for(int j = 0; j < nf; j ++)
       xfrm[j] -= xmean;
     
     int nv = 0;
     FP_TYPE* d = pyin_yincorr(xfrm, nf, yin_w);
     int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, & nv);
-
+    
     int vmini = 0;
     double vmin = 1;
     for(int j = 0; j < nv; j ++)
-      if(d[vi[j]] < vmin) {
+      if(d[vi[j]] < 0.02) {
         vmin = d[vi[j]];
         vmini = vi[j];
+        break;
       }
 
     // if YIN gives very definitive result
