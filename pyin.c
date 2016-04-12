@@ -37,10 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FP_TYPE* pyin_yincorr(FP_TYPE* x, int nx, int w);
 
-static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step, int begin, int* nv) {
+static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step, int begin, int end, int* nv) {
   int* ret = calloc(nx, sizeof(int));
   *nv = 0;
-  for(int i = begin; i < nx - 1; i ++)
+  for(int i = begin; i < min(nx - 1, end); i ++)
     if(x[i - 1] > x[i] && x[i + 1] > x[i] && x[i] < threshold) {
       threshold = x[i] - step;
       ret[(*nv) ++] = i;
@@ -70,6 +70,7 @@ pyin_paramters pyin_init(int nhop) {
   ret.w = 300;
   ret.beta_a = 1.7;
   ret.beta_u = 0.2;
+  ret.threshold = 0.02;
   ret.bias = 1.0;
   ret.trange = 12;
   ret.ptrans = 0.003;
@@ -108,24 +109,17 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
     
     int nv = 0;
     FP_TYPE* d = pyin_yincorr(xfrm, nf, yin_w);
-    int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, & nv);
+    int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, fs / param.fmin, & nv);
     
-    int vmini = 0;
-    double vmin = 1;
+    int nprior = 0;
+    const double weight_prior = 5;
     for(int j = 0; j < nv; j ++)
-      if(d[vi[j]] < 0.02) {
-        vmin = d[vi[j]];
-        vmini = vi[j];
-        break;
+      if(d[vi[j]] < param.threshold) {
+        nprior ++;
       }
 
-    // if YIN gives very definitive result
-    if(nv > 0 && vmin < 0.02) {
-      nv = 1;
-      vi[0] = vmini;
-    }
-
     obsrv -> slice[i] = gvps_obsrv_slice_create(nv);
+    double ptotal = 0;
     for(int j = 0; j < nv; j ++) {
       int period = vi[j];
       FP_TYPE freq = fs / period;
@@ -133,18 +127,29 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
 
       FP_TYPE p = 0;
       FP_TYPE v0 = j == 0 ? 1 : (d[vi[j - 1]] + EPS);
-      FP_TYPE v1 = d[vi[j]] + EPS;
+      FP_TYPE v1 = j == nv - 1 ? 0 : d[vi[j + 1]] + EPS;
       for(int k = floor(v1 * 100); k < floor(v0 * 100); k ++)
-        p += betapdf[k];
+        p += betapdf[k] * (d[vi[j]] < (double)k / 100 ? 1.0 : 0.01);
       p = p > 0.99 ? 0.99 : p;
       p *= param.bias;
       
       if(freq > param.fmax || freq < param.fmin)
         p = EPS;
-      
+
       obsrv -> slice[i] -> pair[j].state = bin;
       obsrv -> slice[i] -> pair[j].p = p;
+      ptotal += p;
     }
+    
+    // weight and re-normalize
+    double ptotal_new = 0;
+    for(int j = 0; j < nv; j ++) {
+      if(d[vi[j]] < param.threshold)
+        obsrv -> slice[i] -> pair[j].p *= weight_prior;
+      ptotal_new += obsrv -> slice[i] -> pair[j].p;
+    }
+    for(int j = 0; j < nv; j ++)
+      obsrv -> slice[i] -> pair[j].p *= ptotal / ptotal_new;
 
     free(vi);
     free(d);

@@ -39,6 +39,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #define FP_TYPE double
 
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
+
 #ifndef M_PI
   #define M_PI 3.1415926535897932385
 #endif
