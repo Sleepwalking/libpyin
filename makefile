@@ -1,6 +1,6 @@
 CC = $(CROSS)gcc
 AR = $(CROSS)ar
-CFLAGS = -Ofast -std=c99 -Wall -fPIC
+CFLAGS = -DFP_TYPE=float -Ofast -std=c99 -Wall -fPIC $(CFLAGSEXT)
 ARFLAGS = -rv
 OUT_DIR = ./build
 OBJS = $(OUT_DIR)/math-funcs.o $(OUT_DIR)/yin.o $(OUT_DIR)/pyin.o

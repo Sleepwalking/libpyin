@@ -48,14 +48,14 @@ static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step, in
   return ret;
 }
 
-double ptransition_same(void* task, int ds, int t) {
+FP_TYPE ptransition_same(void* task, int ds, int t) {
   pyin_paramters* param = (pyin_paramters*)task;
-  return (1.0 - param -> ptrans) * (1.0 - (double)ds / (param -> trange + 1)) * (param -> trange + 1);
+  return (1.0 - param -> ptrans) * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) * (param -> trange + 1);
 }
     
-double ptransition_diff(void* task, int ds, int t) {
+FP_TYPE ptransition_diff(void* task, int ds, int t) {
   pyin_paramters* param = (pyin_paramters*)task;
-  return param -> ptrans * (1.0 - (double)ds / (param -> trange + 1)) * (param -> trange + 1);
+  return param -> ptrans * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) * (param -> trange + 1);
 }
     
 int fntran(void* task, int t) {
@@ -79,7 +79,7 @@ pyin_paramters pyin_init(int nhop) {
   return ret;
 }
 
-int pyin_trange(int nq, double fmin, double fmax) {
+int pyin_trange(int nq, FP_TYPE fmin, FP_TYPE fmax) {
   pyin_semitone_wrapper smtdesc = pyin_wrapper_from_frange(fmin, fmax);
   return nq / smtdesc.a * 0.25; // +- 0.25 octave
 }
@@ -112,14 +112,14 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
     int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, fs / param.fmin, & nv);
     
     int nprior = 0;
-    const double weight_prior = 5;
+    const FP_TYPE weight_prior = 5;
     for(int j = 0; j < nv; j ++)
       if(d[vi[j]] < param.threshold) {
         nprior ++;
       }
 
     obsrv -> slice[i] = gvps_obsrv_slice_create(nv);
-    double ptotal = 0;
+    FP_TYPE ptotal = 0;
     for(int j = 0; j < nv; j ++) {
       int period = vi[j];
       FP_TYPE freq = fs / period;
@@ -129,7 +129,7 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
       FP_TYPE v0 = j == 0 ? 1 : (d[vi[j - 1]] + EPS);
       FP_TYPE v1 = j == nv - 1 ? 0 : d[vi[j + 1]] + EPS;
       for(int k = floor(v1 * 100); k < floor(v0 * 100); k ++)
-        p += betapdf[k] * (d[vi[j]] < (double)k / 100 ? 1.0 : 0.01);
+        p += betapdf[k] * (d[vi[j]] < (FP_TYPE)k / 100 ? 1.0 : 0.01);
       p = p > 0.99 ? 0.99 : p;
       p *= param.bias;
       
@@ -142,7 +142,7 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
     }
     
     // weight and re-normalize
-    double ptotal_new = 0;
+    FP_TYPE ptotal_new = 0;
     for(int j = 0; j < nv; j ++) {
       if(d[vi[j]] < param.threshold)
         obsrv -> slice[i] -> pair[j].p *= weight_prior;

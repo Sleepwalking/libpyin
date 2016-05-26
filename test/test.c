@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
   int fs = 0;
   int nbit = 0;
   int nx = 0;
-  double* x = wavread(argv[1], & fs, & nbit, & nx);
+  FP_TYPE* x = wavread(argv[1], & fs, & nbit, & nx);
   
   pyin_paramters param = pyin_init(ceil(fs * 0.005));
   param.fmin = 50.0;
@@ -55,10 +55,10 @@ int main(int argc, char** argv) {
   param.w = param.nf / 3;
   
   int nfrm = 0;
-  double* f0 = pyin_analyze(param, x, nx, fs, & nfrm);
+  FP_TYPE* f0 = pyin_analyze(param, x, nx, fs, & nfrm);
   
-  double min = param.fmax;
-  double max = param.fmin;
+  FP_TYPE min = param.fmax;
+  FP_TYPE max = param.fmin;
   for(int i = 0; i < nfrm; i ++) {
     if(f0[i] > 0) {
       if(f0[i] < min) min = f0[i];

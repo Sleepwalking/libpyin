@@ -34,10 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LIB_PYIN
 #define LIB_PYIN
 
-#ifndef FP_TYPE
-  #define FP_TYPE double
-#endif
-
 typedef struct {
   FP_TYPE fmin;     // minimum frequency
   FP_TYPE fmax;     // maximum frequency
@@ -54,7 +50,7 @@ typedef struct {
 } pyin_paramters;
 
 pyin_paramters pyin_init(int nhop);
-int pyin_trange(int nq, double fmin, double fmax);
+int pyin_trange(int nq, FP_TYPE fmin, FP_TYPE fmax);
 FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int* nfrm);
 
 #endif

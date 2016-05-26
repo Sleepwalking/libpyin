@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <malloc.h>
 #include <math.h>
 #include <unistd.h>
-#define FP_TYPE double
 
 #ifdef max
 #undef max
