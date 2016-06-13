@@ -7,6 +7,7 @@ Compile
 ---
 
 ```
+git submodule init
 git submodule update
 cd external/libgvps
 mkdir build
