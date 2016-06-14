@@ -1,6 +1,7 @@
-CC = $(CROSS)gcc
+export FP_TYPE ?= float
+CC ?= $(CROSS)gcc
 AR = $(CROSS)ar
-CFLAGS = -DFP_TYPE=float -Ofast -std=c99 -Wall -fPIC $(CFLAGSEXT)
+CFLAGS = -DFP_TYPE=$(FP_TYPE) -Ofast -std=c99 -Wall -fPIC $(CFLAGSEXT)
 ARFLAGS = -rv
 OUT_DIR = ./build
 OBJS = $(OUT_DIR)/math-funcs.o $(OUT_DIR)/yin.o $(OUT_DIR)/pyin.o
@@ -38,4 +39,3 @@ clear:
 	@echo 'Removing all temporary binaries... '
 	@rm -f $(OUT_DIR)/libpyin.a $(OUT_DIR)/*.o
 	@echo Done.
-
