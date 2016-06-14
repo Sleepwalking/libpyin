@@ -22,11 +22,11 @@
 #define true  1
 typedef int bool;
 
-inline int MyMax(int x, int y) {
+static inline int MyMax(int x, int y) {
   return x > y ? x : y;
 }
 
-inline int MyMin(int x, int y) {
+static inline int MyMin(int x, int y) {
   return x < y ? x : y;
 }
 

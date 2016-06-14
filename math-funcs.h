@@ -53,7 +53,7 @@ int      pyin_semitone_from_freq(pyin_semitone_wrapper wrapper, FP_TYPE freq);
 FP_TYPE  pyin_freq_from_semitone(pyin_semitone_wrapper wrapper, int semitone);
 
 #define def_singlepass(name, op, init) \
-inline double name(FP_TYPE* src, int n) { \
+static inline double name(FP_TYPE* src, int n) { \
   FP_TYPE ret = init; \
   for(int i = 0; i < n; i ++) \
     ret = op(ret, src[i]); \
@@ -68,21 +68,21 @@ def_singlepass(sumfp, def_add, 0)
 def_singlepass(maxfp, def_max, src[0])
 def_singlepass(minfp, def_min, src[0])
 
-inline FP_TYPE* hanning(int n) {
+static inline FP_TYPE* hanning(int n) {
   FP_TYPE* ret = calloc(n, sizeof(FP_TYPE));
   for(int i = 0; i < n; i ++)
     ret[i] = 0.5 * (1 - cos(2 * M_PI * i / (n - 1)));
   return ret;
 }
 
-inline FP_TYPE* hamming(int n) {
+static inline FP_TYPE* hamming(int n) {
   FP_TYPE* ret = calloc(n, sizeof(FP_TYPE));
   for(int i = 0; i < n; i ++)
     ret[i] = 0.54 - 0.46 * cos(2 * M_PI * i / (n - 1));
   return ret;
 }
 
-inline FP_TYPE* blackman_harris(int n) {
+static inline FP_TYPE* blackman_harris(int n) {
   FP_TYPE* ret = calloc(n, sizeof(FP_TYPE));
   const FP_TYPE a0 = 0.35875;
   const FP_TYPE a1 = 0.48829;
