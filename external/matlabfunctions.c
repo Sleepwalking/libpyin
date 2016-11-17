@@ -112,7 +112,7 @@ static bool GetParameters(FILE *fp, int *fs, int *nbit, int *wav_length) {
   return true;
 }
 
-void wavwrite(double *x, int x_length, int fs, int nbit, char *filename) {
+void wavwrite(FP_TYPE *x, int x_length, int fs, int nbit, char *filename) {
   FILE *fp = fopen(filename, "wb");
   if (fp == NULL) {
     printf("File cannot be opened.\n");
@@ -168,7 +168,7 @@ void wavwrite(double *x, int x_length, int fs, int nbit, char *filename) {
   fclose(fp);
 }
 
-double * wavread(char* filename, int *fs, int *nbit, int *wav_length) {
+FP_TYPE * wavread(char* filename, int *fs, int *nbit, int *wav_length) {
   FILE *fp = fopen(filename, "rb");
   if (NULL == fp) {
     printf("File not found.\n");
@@ -185,12 +185,12 @@ double * wavread(char* filename, int *fs, int *nbit, int *wav_length) {
     return NULL;
   }
 
-  double *waveform = calloc(*wav_length, sizeof(double));
+  FP_TYPE *waveform = calloc(*wav_length, sizeof(FP_TYPE));
   if (waveform == NULL) return NULL;
 
   int quantization_byte = *nbit / 8;
-  double zero_line = pow(2.0, *nbit - 1);
-  double tmp, sign_bias;
+  FP_TYPE zero_line = pow(2.0, *nbit - 1);
+  FP_TYPE tmp, sign_bias;
   unsigned char for_int_number[4];
   for (int i = 0; i < *wav_length; ++i) {
     sign_bias = tmp = 0.0;
