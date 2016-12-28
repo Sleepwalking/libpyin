@@ -2,7 +2,7 @@
 libpyin
 ===
 
-Copyright (c) 2015, Kanru Hua
+Copyright (c) 2015-2017, Kanru Hua
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pyin.h"
 
 FP_TYPE* pyin_yincorr(FP_TYPE* x, int nx, int w);
+FP_TYPE pyin_qinterp(FP_TYPE* x, int k, FP_TYPE* y);
 
 static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step,
   int begin, int end, int* nv) {
@@ -49,20 +50,32 @@ static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step,
   return ret;
 }
 
-FP_TYPE ptransition_same(void* task, int ds, int t) {
+static FP_TYPE ptransition_same(void* task, int ds, int t) {
   pyin_paramters* param = (pyin_paramters*)task;
   return (1.0 - param -> ptrans) * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) *
     (param -> trange + 1);
 }
 
-FP_TYPE ptransition_diff(void* task, int ds, int t) {
+static FP_TYPE ptransition_diff(void* task, int ds, int t) {
   pyin_paramters* param = (pyin_paramters*)task;
   return param -> ptrans * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) *
     (param -> trange + 1);
 }
 
-int fntran(void* task, int t) {
+static int fntran(void* task, int t) {
   return ((pyin_paramters*)task) -> trange;
+}
+
+static FP_TYPE pick_nearest_candidate(FP_TYPE* list, int n, FP_TYPE x) {
+  if(n == 0) return x;
+  FP_TYPE dist = fabs(list[0] - x);
+  int idx = 0;
+  for(int i = 1; i < n; i ++)
+    if(fabs(list[i] - x) < dist) {
+      dist = fabs(list[i] - x);
+      idx = i;
+    }
+  return list[idx];
 }
 
 pyin_paramters pyin_init(int nhop) {
@@ -102,6 +115,7 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
   FP_TYPE* betapdf = pyin_normalized_betapdf(param.beta_a,
     pyin_beta_b_from_au(param.beta_a, param.beta_u), 0, 1, 100);
   gvps_obsrv* obsrv = gvps_obsrv_create(*nfrm);
+  FP_TYPE** candf = calloc(*nfrm, sizeof(FP_TYPE*)); // refined candidate frequencies
   
   for(int i = 0; i < *nfrm; i ++) {
     FP_TYPE* xfrm = fetch_frame(x, nx, i * nhop, nf);
@@ -115,10 +129,15 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
     int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, fs / param.fmin, & nv);
     
     obsrv -> slice[i] = gvps_obsrv_slice_create(nv);
+    candf[i] = calloc(nv, sizeof(FP_TYPE));
     FP_TYPE ptotal = 0;
     for(int j = 0; j < nv; j ++) {
       int period = vi[j];
-      FP_TYPE freq = fs / period;
+      FP_TYPE pinterp = period;
+      pyin_qinterp(d, period, & pinterp);
+      FP_TYPE freq = fs / pinterp;
+      candf[i][j] = freq;
+
       int bin = pyin_semitone_from_freq(smtdesc, freq);
 
       FP_TYPE p = 0;
@@ -173,8 +192,10 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
   for(int i = 0; i < *nfrm; i ++) {
     if(pint[i] >= smtdesc.nq)
       ret[i] = 0;
-    else
-      ret[i] = pyin_freq_from_semitone(smtdesc, pint[i]);
+    else {
+      ret[i] = pick_nearest_candidate(candf[i], obsrv -> slice[i] -> N,
+        pyin_freq_from_semitone(smtdesc, pint[i]));
+    }
   }
   
   /*
@@ -187,8 +208,12 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
       for(int j = 1; j <= frame_offset && i - j >= 0; j ++)
         ret[i - j] = ret[i];
   
+  for(int i = 0; i < *nfrm; i ++)
+    free(candf[i]);
+
   free(betapdf);
   free(pint);
+  free(candf);
   gvps_obsrv_free(obsrv);
   return ret;
 }

@@ -2,7 +2,7 @@
 libpyin
 ===
 
-Copyright (c) 2015, Kanru Hua
+Copyright (c) 2015-2017, Kanru Hua
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -55,3 +55,18 @@ FP_TYPE* pyin_yincorr(FP_TYPE* x, int nx, int w) {
   return d;
 }
 
+FP_TYPE pyin_qinterp(FP_TYPE* x, int k, FP_TYPE* y) {
+  FP_TYPE a, b, c, a1, a2, x1;
+  a = x[k - 1];
+  b = x[k + 0];
+  c = x[k + 1];
+  a1 = (a + c) / 2.0 - b;
+  a2 = c - b - a1;
+  x1 = - a2 / a1 * 0.5;
+  
+  x1 = (fabs(x1) < 1.0) ? x1 : 0; // in case we get some x outside of [k-1, k+1]
+  
+  if(y != NULL)
+    *y = (FP_TYPE)k + x1;
+  return a1 * x1 * x1 + a2 * x1 + b;
+}
