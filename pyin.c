@@ -37,7 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FP_TYPE* pyin_yincorr(FP_TYPE* x, int nx, int w);
 
-static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step, int begin, int end, int* nv) {
+static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step,
+  int begin, int end, int* nv) {
   int* ret = calloc(nx, sizeof(int));
   *nv = 0;
   for(int i = begin; i < min(nx - 1, end); i ++)
@@ -50,14 +51,16 @@ static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step, in
 
 FP_TYPE ptransition_same(void* task, int ds, int t) {
   pyin_paramters* param = (pyin_paramters*)task;
-  return (1.0 - param -> ptrans) * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) * (param -> trange + 1);
+  return (1.0 - param -> ptrans) * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) *
+    (param -> trange + 1);
 }
-    
+
 FP_TYPE ptransition_diff(void* task, int ds, int t) {
   pyin_paramters* param = (pyin_paramters*)task;
-  return param -> ptrans * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) * (param -> trange + 1);
+  return param -> ptrans * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) *
+    (param -> trange + 1);
 }
-    
+
 int fntran(void* task, int t) {
   return ((pyin_paramters*)task) -> trange;
 }
@@ -111,13 +114,6 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
     FP_TYPE* d = pyin_yincorr(xfrm, nf, yin_w);
     int* vi = find_valleys(d, nd, 1, 0.01, fs / param.fmax, fs / param.fmin, & nv);
     
-    int nprior = 0;
-    const FP_TYPE weight_prior = 5;
-    for(int j = 0; j < nv; j ++)
-      if(d[vi[j]] < param.threshold) {
-        nprior ++;
-      }
-
     obsrv -> slice[i] = gvps_obsrv_slice_create(nv);
     FP_TYPE ptotal = 0;
     for(int j = 0; j < nv; j ++) {
@@ -141,11 +137,26 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
       ptotal += p;
     }
     
-    // weight and re-normalize
+    /*
+      To my surprise the original pYIN occasionally fails on some very high
+        quality speech with some quite flat pitch curve. Careful examination
+        of F0 candidates shows two candidates with almost identical probability,
+        but one of which has 2x pitch.
+      Fortunately we're still able to tell their difference from the YIN
+        correlation function. The following is a somewhat dirty remedy to this
+        issue that works by emphasizing the candidate with YIN correlation
+        below some threshold (and then appropriately normalize the weights).
+      A more elegant solution requires some study into the statistical
+        properties of F0 candidates. It's going to take some time and I'm not
+        sure if it's worth the efforts.
+      If you're not a fan of such kind of heuristics, simply set threshold to 0,
+        effectively disabling it.
+    */
     FP_TYPE ptotal_new = 0;
+    const FP_TYPE emphasis = 5;
     for(int j = 0; j < nv; j ++) {
       if(d[vi[j]] < param.threshold)
-        obsrv -> slice[i] -> pair[j].p *= weight_prior;
+        obsrv -> slice[i] -> pair[j].p *= emphasis;
       ptotal_new += obsrv -> slice[i] -> pair[j].p;
     }
     for(int j = 0; j < nv; j ++)
@@ -166,7 +177,10 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
       ret[i] = pyin_freq_from_semitone(smtdesc, pint[i]);
   }
   
-  // fill in the blank
+  /*
+    YIN comes with a slight delay at unvoiced -> voiced boundary. We compensate
+      for this delay by extending voicing region a few frames backward.
+  */
   int frame_offset = ceil(nf / nhop);
   for(int i = 1; i < *nfrm; i ++)
     if(pint[i] < smtdesc.nq && pint[i - 1] >= smtdesc.nq) // from unvoiced to voiced
@@ -178,4 +192,3 @@ FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int*
   gvps_obsrv_free(obsrv);
   return ret;
 }
-
