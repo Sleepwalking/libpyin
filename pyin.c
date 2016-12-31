@@ -51,19 +51,19 @@ static int* find_valleys(FP_TYPE* x, int nx, FP_TYPE threshold, FP_TYPE step,
 }
 
 static FP_TYPE ptransition_same(void* task, int ds, int t) {
-  pyin_paramters* param = (pyin_paramters*)task;
+  pyin_config* param = (pyin_config*)task;
   return (1.0 - param -> ptrans) * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) *
     (param -> trange + 1);
 }
 
 static FP_TYPE ptransition_diff(void* task, int ds, int t) {
-  pyin_paramters* param = (pyin_paramters*)task;
+  pyin_config* param = (pyin_config*)task;
   return param -> ptrans * (1.0 - (FP_TYPE)ds / (param -> trange + 1)) *
     (param -> trange + 1);
 }
 
 static int fntran(void* task, int t) {
-  return ((pyin_paramters*)task) -> trange;
+  return ((pyin_config*)task) -> trange;
 }
 
 static FP_TYPE pick_nearest_candidate(FP_TYPE* list, int n, FP_TYPE x) {
@@ -78,8 +78,8 @@ static FP_TYPE pick_nearest_candidate(FP_TYPE* list, int n, FP_TYPE x) {
   return list[idx];
 }
 
-pyin_paramters pyin_init(int nhop) {
-  pyin_paramters ret;
+pyin_config pyin_init(int nhop) {
+  pyin_config ret;
   ret.fmin = 50.0;
   ret.fmax = 800.0;
   ret.nq = 480;
@@ -100,7 +100,7 @@ int pyin_trange(int nq, FP_TYPE fmin, FP_TYPE fmax) {
   return nq / smtdesc.a * 0.25; // +- 0.25 octave
 }
 
-FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int* nfrm) {
+FP_TYPE* pyin_analyze(pyin_config param, FP_TYPE* x, int nx, FP_TYPE fs, int* nfrm) {
   int nf = param.nf;
   int yin_w = param.w;
   int nhop = param.nhop;

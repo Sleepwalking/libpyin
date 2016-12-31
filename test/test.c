@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   int nx = 0;
   FP_TYPE* x = wavread(argv[1], & fs, & nbit, & nx);
   
-  pyin_paramters param = pyin_init(ceil(fs * 0.005));
+  pyin_config param = pyin_init(ceil(fs * 0.005));
   param.fmin = 50.0;
   param.fmax = 800.0;
   param.trange = pyin_trange(param.nq, param.fmin, param.fmax);

@@ -47,11 +47,11 @@ typedef struct {
   int trange;       // maximum allowed transition distance
   int nf;           // size of analysis frame
   int nhop;         // hop size between consecutive frames
-} pyin_paramters;
+} pyin_config;
 
-pyin_paramters pyin_init(int nhop);
+pyin_config pyin_init(int nhop);
 int pyin_trange(int nq, FP_TYPE fmin, FP_TYPE fmax);
-FP_TYPE* pyin_analyze(pyin_paramters param, FP_TYPE* x, int nx, FP_TYPE fs, int* nfrm);
+FP_TYPE* pyin_analyze(pyin_config param, FP_TYPE* x, int nx, FP_TYPE fs, int* nfrm);
 
 #endif
 
