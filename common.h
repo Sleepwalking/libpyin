@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef PYIN_COMMON
 #define PYIN_COMMON
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
 
