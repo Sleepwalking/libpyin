@@ -29,9 +29,9 @@ $(OUT_DIR)/%.o : %.c
 	$(CC) $(CFLAGS) -o $(OUT_DIR)/$*.o -c $*.c
 
 install: $(OUT_DIR)/libpyin.a
-	mkdir -p $(PREFIX)/lib $(PREFIX)/include
+	mkdir -p $(PREFIX)/lib $(PREFIX)/include/libpyin
 	cp $(OUT_DIR)/libpyin.a $(PREFIX)/lib/
-	cp pyin.h $(PREFIX)/include/
+	cp pyin.h $(PREFIX)/include/libpyin
 	@echo Done.
 
 clean:
