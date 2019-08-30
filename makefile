@@ -1,9 +1,18 @@
 export FP_TYPE ?= float
+CONFIG = Debug
+
 PREFIX=/usr
 GVPS_PREFIX = /usr
 CC ?= $(CROSS)gcc
 AR = $(CROSS)ar
-CFLAGS = -I$(GVPS_PREFIX)/include -DFP_TYPE=$(FP_TYPE) -Ofast -std=c99 -Wall -fPIC $(CFLAGSEXT)
+CFLAGS_COMMON = -I$(GVPS_PREFIX)/include -DFP_TYPE=$(FP_TYPE) -std=c99 -Wall -fPIC $(CFLAGSEXT)
+CFLAGS_DBG = $(CFLAGS_COMMON) -Og -g
+CFLAGS_REL = $(CFLAGS_COMMON) -Ofast
+ifeq ($(CONFIG), Debug)
+  CFLAGS = $(CFLAGS_DBG)
+else
+  CFLAGS = $(CFLAGS_REL)
+endif
 ARFLAGS = -rv
 OUT_DIR = ./build
 OBJS = $(OUT_DIR)/math-funcs.o $(OUT_DIR)/yin.o $(OUT_DIR)/pyin.o
