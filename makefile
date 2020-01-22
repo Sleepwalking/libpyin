@@ -22,8 +22,8 @@ default: $(OUT_DIR)/libpyin.a
 test: $(OUT_DIR)/pyin-test
 	$(OUT_DIR)/pyin-test test/vaiueo2d.wav
 
-$(OUT_DIR)/pyin-test: $(OUT_DIR)/libpyin.a test/test.c external/matlabfunctions.c $(GVPS_PREFIX)/lib/libgvps.a
-	$(CC) $(CFLAGS) -o $(OUT_DIR)/pyin-test test/test.c external/matlabfunctions.c $(OUT_DIR)/libpyin.a $(GVPS_PREFIX)/lib/libgvps.a -lm
+$(OUT_DIR)/pyin-test: $(OUT_DIR)/libpyin.a test/test.c external/matlabfunctions.c $(GVPS_PREFIX)/build/libgvps.a
+	$(CC) $(CFLAGS) -o $(OUT_DIR)/pyin-test test/test.c external/matlabfunctions.c $(OUT_DIR)/libpyin.a $(GVPS_PREFIX)/build/libgvps.a -lm
 
 $(OUT_DIR)/libpyin.a: $(OBJS)
 	$(AR) $(ARFLAGS) $(OUT_DIR)/libpyin.a $(OBJS) $(LIBS)

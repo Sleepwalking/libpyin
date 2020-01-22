@@ -8,12 +8,8 @@ Compile
 
 ```
 git submodule init
-git submodule update
-cd external/libgvps
-mkdir build
-make
-cd ../..
-mkdir build
+git submodule update --init
+make -C external/libgvps
 make
 ```
 
