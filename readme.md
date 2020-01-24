@@ -7,14 +7,10 @@ Compile
 ---
 
 ```
-git submodule init
-git submodule update
-cd external/libgvps
-mkdir build
-make
-cd ../..
-mkdir build
-make
+git clone https://github.com/Sleepwalking/libgvps.git
+git clone https://github.com/Sleepwalking/libpyin.git
+make -C libgvps
+make GVPS_PREFIX=../libgvps -C libpyin
 ```
 
 Works cited

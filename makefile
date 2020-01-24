@@ -2,10 +2,10 @@ export FP_TYPE ?= float
 CONFIG = Debug
 
 PREFIX=/usr
-GVPS_PREFIX = /usr
+GVPS_PREFIX = libgvps
 CC ?= $(CROSS)gcc
 AR = $(CROSS)ar
-CFLAGS_COMMON = -I$(GVPS_PREFIX)/include -DFP_TYPE=$(FP_TYPE) -std=c99 -Wall -fPIC $(CFLAGSEXT)
+CFLAGS_COMMON = -I$(GVPS_PREFIX) -DFP_TYPE=$(FP_TYPE) -std=c99 -Wall -fPIC $(CFLAGSEXT)
 CFLAGS_DBG = $(CFLAGS_COMMON) -Og -g
 CFLAGS_REL = $(CFLAGS_COMMON) -Ofast
 ifeq ($(CONFIG), Debug)
@@ -22,8 +22,8 @@ default: $(OUT_DIR)/libpyin.a
 test: $(OUT_DIR)/pyin-test
 	$(OUT_DIR)/pyin-test test/vaiueo2d.wav
 
-$(OUT_DIR)/pyin-test: $(OUT_DIR)/libpyin.a test/test.c external/matlabfunctions.c $(GVPS_PREFIX)/lib/libgvps.a
-	$(CC) $(CFLAGS) -o $(OUT_DIR)/pyin-test test/test.c external/matlabfunctions.c $(OUT_DIR)/libpyin.a $(GVPS_PREFIX)/lib/libgvps.a -lm
+$(OUT_DIR)/pyin-test: $(OUT_DIR)/libpyin.a test/test.c external/matlabfunctions.c $(GVPS_PREFIX)/build/libgvps.a
+	$(CC) $(CFLAGS) -o $(OUT_DIR)/pyin-test test/test.c external/matlabfunctions.c $(OUT_DIR)/libpyin.a $(GVPS_PREFIX)/build/libgvps.a -lm
 
 $(OUT_DIR)/libpyin.a: $(OBJS)
 	$(AR) $(ARFLAGS) $(OUT_DIR)/libpyin.a $(OBJS) $(LIBS)
